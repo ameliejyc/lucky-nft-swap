@@ -68,4 +68,22 @@ describe('LuckyNftSwap', () => {
         console.log(shiftNumber)
         expect(shiftNumber).to.be.gt(0);
     });
+
+    it('Should test withdraw', async () => {
+        const [owner, address1, address2] = await ethers.getSigners();
+        console.log(address1.address)
+        console.log(address2.address)
+        const withdrawTx1 = await luckyNftSwap.withdraw(address1.address);
+        await withdrawTx1.wait()
+        const withdrawTx2 = await luckyNftSwap.withdraw(address2.address);
+        await withdrawTx2.wait()
+
+        const owner1 = await exampleNFT.ownerOf(0)
+        const owner2 = await exampleNFT.ownerOf(1)
+
+        console.log(owner1)
+        console.log(owner2)
+        expect(owner1).to.be.oneOf([address1.address, address2.address]);
+        expect(owner2).to.be.oneOf([address1.address, address2.address]);
+    });
 });
