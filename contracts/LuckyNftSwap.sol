@@ -20,7 +20,7 @@ contract LuckyNftSwap is IERC721Receiver {
     Deposit[] public deposits;
     mapping(address => uint) public depositorCounterMap;
 
-    uint256 public counter = 0;
+    uint256 public counter = 1;
     uint shiftNumber;
     uint poolCap;
     bool luckySwapEnded = false;
@@ -40,7 +40,7 @@ contract LuckyNftSwap is IERC721Receiver {
 
     // function to deposit token
     function deposit(address _addColection, uint256 _tokenId) public {
-        require(counter < poolCap, 'Pool is full');
+        require(counter <= poolCap, 'Pool is full');
 
         IERC721 nft = IERC721(_addColection);
 
