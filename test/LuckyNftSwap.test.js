@@ -57,5 +57,15 @@ describe('LuckyNftSwap', () => {
         const counter2 = await luckyNftSwap.depositorCounterMap(address2.address);
         console.log(counter2);
         expect(counter2).to.be.equal(BigNumber.from(2));
+
+    });
+
+    it('Should test shift', async () => {
+        const shiftTx = await luckyNftSwap.shift();
+        await shiftTx.wait();
+
+        const shiftNumber = await luckyNftSwap.shiftNumber()
+        console.log(shiftNumber)
+        expect(shiftNumber).to.be.gt(0);
     });
 });

@@ -21,7 +21,7 @@ contract LuckyNftSwap is IERC721Receiver {
     mapping(address => uint) public depositorCounterMap;
 
     uint256 public counter = 1;
-    uint shiftNumber;
+    uint public shiftNumber;
     uint poolCap;
     bool luckySwapEnded = false;
 
@@ -91,10 +91,12 @@ contract LuckyNftSwap is IERC721Receiver {
     }
 
 
-    function shift(uint256 _move) public {
-        require(counter == poolCap, 'Need to deposit more nfts');
+    function shift() public {
+        require(counter >= poolCap, 'Need to deposit more nfts');
         require(!luckySwapEnded, 'Lucky swap already ended');
+        luckySwapEnded = true;
         shiftNumber = uint256(block.number - 1);
+        emit Shifted(shiftNumber);
     }
 
     function getDeposits() public view returns (Deposit[] memory) {
