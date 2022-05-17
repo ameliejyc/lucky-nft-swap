@@ -37,12 +37,9 @@ function getErrorMessage(error: Error): string {
 }
 
 const StyledActivateDeactivateDiv = styled.div`
-  display: grid;
-  grid-template-rows: 1fr;
-  grid-template-columns: 1fr 1fr;
-  grid-gap: 10px;
-  place-self: center;
-  align-items: center;
+  display: flex;
+  justify-content: flex-end;
+  width: 100%;
 `;
 
 const StyledActivateButton = styled.button`
@@ -50,7 +47,7 @@ const StyledActivateButton = styled.button`
   height: 2rem;
   border-radius: 1rem;
   border-color: green;
-  cursor: pointer;
+  margin-right: 0.4rem;
 `;
 
 const StyledDeactivateButton = styled.button`
@@ -58,7 +55,6 @@ const StyledDeactivateButton = styled.button`
   height: 2rem;
   border-radius: 1rem;
   border-color: red;
-  cursor: pointer;
 `;
 
 function Activate(): ReactElement {
@@ -96,7 +92,7 @@ function Activate(): ReactElement {
       }}
       onClick={handleActivate}
     >
-      Connect
+      Connect your wallet
     </StyledActivateButton>
   );
 }

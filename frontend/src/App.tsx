@@ -1,21 +1,27 @@
 import { ReactElement } from 'react';
 import styled from 'styled-components';
 import { ActivateDeactivate } from './components/ActivateDeactivate';
-import { Greeter } from './components/Greeter';
+import NftPool from './components/NftPool';
 import NftItemList from './components/NftItemList';
-import { WalletStatus } from './components/WalletStatus';
 
 const StyledAppDiv = styled.div`
-  display: grid;
-  grid-gap: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  max-width: 90vw;
+  margin: auto;
+`;
+
+const StyledAppHeader = styled.h1`
+  font-size: 3rem;
 `;
 
 export function App(): ReactElement {
   return (
     <StyledAppDiv>
       <ActivateDeactivate />
-      <WalletStatus />
-      <Greeter />
+      <StyledAppHeader>Lucky NFT Swap</StyledAppHeader>
+      <NftPool />
       <NftItemList />
     </StyledAppDiv>
   );

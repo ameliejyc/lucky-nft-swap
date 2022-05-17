@@ -23,9 +23,8 @@ const StyledCard = styled.div`
   flex-direction: column;
   align-items: center;
   justify-content: space-between;
-  width: 400px;
+  min-width: 200px;
   height: auto;
-  border: 2px solid yellow;
   margin-bottom: 1rem;
   padding: 0.5rem;
 `;

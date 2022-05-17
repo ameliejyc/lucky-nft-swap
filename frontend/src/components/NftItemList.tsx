@@ -12,14 +12,14 @@ enum LoadingStatus {
   SUCCESS = '',
   NO_RESULTS = 'No NFTs found on this account.',
   FAILED = 'Sorry, fetching your NFTs failed. Please try again.',
-  UNAUTHORISED = 'Connect to your wallet to fetch your NFTs.'
+  UNAUTHORISED = 'Connect to your wallet to fetch your NFTs and play Lucky NFT Swap!'
 }
 
 const StyledNFTGrid = styled.section`
   display: flex;
   flex-wrap: wrap;
-  justify-content: space-between;
-  width: 90vw;
+  justify-content: space-around;
+  width: 100%;
 `;
 
 const NftItemList = () => {
@@ -60,14 +60,18 @@ const NftItemList = () => {
   return (
     <>
       <h2>Your NFTs</h2>
-      <div>{loadingStatus}</div>
-      <StyledNFTGrid>
-        {onChainNFTs &&
-          onChainNFTs.map((nft: NFT, index: number) => {
-            nft = verifyMetadata(nft);
-            return <NftItem key={index} nft={nft} chainId={chainId} />;
-          })}
-      </StyledNFTGrid>
+      <p>Choose an NFT to add to the pool!</p>
+      {loadingStatus !== LoadingStatus.SUCCESS ? (
+        <p>{loadingStatus}</p>
+      ) : (
+        <StyledNFTGrid>
+          {onChainNFTs &&
+            onChainNFTs.map((nft: NFT, index: number) => {
+              nft = verifyMetadata(nft);
+              return <NftItem key={index} nft={nft} chainId={chainId} />;
+            })}
+        </StyledNFTGrid>
+      )}
     </>
   );
 };
