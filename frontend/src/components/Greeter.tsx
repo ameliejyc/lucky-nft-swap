@@ -10,7 +10,6 @@ import {
 import styled from 'styled-components';
 import GreeterArtifact from '../artifacts/contracts/Greeter.sol/Greeter.json';
 import { Provider } from '../utils/provider';
-import { SectionDivider } from './SectionDivider';
 
 const StyledDeployContractButton = styled.button`
   width: 180px;
@@ -172,7 +171,6 @@ export function Greeter(): ReactElement {
       >
         Deploy Greeter Contract
       </StyledDeployContractButton>
-      <SectionDivider />
       <StyledGreetingDiv>
         <StyledLabel>Contract addr</StyledLabel>
         <div>

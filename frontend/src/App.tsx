@@ -2,8 +2,7 @@ import { ReactElement } from 'react';
 import styled from 'styled-components';
 import { ActivateDeactivate } from './components/ActivateDeactivate';
 import { Greeter } from './components/Greeter';
-import { SectionDivider } from './components/SectionDivider';
-import { SignMessage } from './components/SignMessage';
+import NftItemList from './components/NftItemList';
 import { WalletStatus } from './components/WalletStatus';
 
 const StyledAppDiv = styled.div`
@@ -15,12 +14,9 @@ export function App(): ReactElement {
   return (
     <StyledAppDiv>
       <ActivateDeactivate />
-      <SectionDivider />
       <WalletStatus />
-      <SectionDivider />
-      <SignMessage />
-      <SectionDivider />
       <Greeter />
+      <NftItemList />
     </StyledAppDiv>
   );
 }
