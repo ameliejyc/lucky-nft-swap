@@ -1,23 +1,34 @@
-const {expect} = require('chai');
-const {ethers} = require('hardhat');
-const {BigNumber} = require("ethers");
+const { expect } = require('chai');
+const { ethers } = require('hardhat');
+const { BigNumber } = require("ethers");
 
 describe('LuckyNftSwap', () => {
     let luckyNftSwapDeployed;
+    let luckyNftSwap;
+
     let exampleNftDeployed;
     let exampleNFT;
-    let luckyNftSwap;
+
+    let AnotherexampleNftDeployed;
+    let AnotherexampleNFT;
+
 
     before(async () => {
         const LuckyNftSwap = await ethers.getContractFactory('LuckyNftSwap');
-        luckyNftSwap = await LuckyNftSwap.deploy([2]);
+        luckyNftSwap = await LuckyNftSwap.deploy([3]);
+        luckyNftSwapDeployed = await luckyNftSwap.deployed();
+
         const ExampleNFT = await ethers.getContractFactory('ExampleNFT');
         exampleNFT = await ExampleNFT.deploy();
-        luckyNftSwapDeployed = await luckyNftSwap.deployed();
         exampleNftDeployed = await exampleNFT.deployed();
+
+        const AnotherExampleNFT = await ethers.getContractFactory('AnotherExampleNFT');
+        AnotherexampleNFT = await AnotherExampleNFT.deploy();
+        AnotherexampleNftDeployed = await AnotherexampleNFT.deployed();
+
     })
 
-    it('Should test deposit 1 nft', async () => {
+    it('Should test deposit 1 nft from Example NFT collection', async () => {
         const [owner, address1, address2] = await ethers.getSigners();
         const mintTx = await exampleNFT.safeMint(address1.address);
         await mintTx.wait();
@@ -37,6 +48,26 @@ describe('LuckyNftSwap', () => {
         expect(counter1).to.be.equal(BigNumber.from(1));
     });
 
+    it('Should test deposit 1 nft from Another Example NFT collection', async () => {
+        const [owner, address1, address3] = await ethers.getSigners();
+        const mintTx = await AnotherexampleNFT.safeMint(address3.address);
+        await mintTx.wait();
+        const approveTx = await AnotherexampleNFT.connect(address3).approve(luckyNftSwapDeployed.address, 0);
+        await approveTx.wait();
+
+        const depositTx = await luckyNftSwap.connect(address3).deposit(AnotherexampleNftDeployed.address, 0);
+        await depositTx.wait();
+
+        const deposits = await luckyNftSwap.getDeposits()
+        console.log(deposits)
+        expect(deposits.length).to.be.equal(2);
+        expect(deposits[1][0]).to.be.equal(AnotherexampleNftDeployed.address);
+        expect(deposits[1][1]).to.be.equal(BigNumber.from(0));
+        const counter1 = await luckyNftSwap.depositorCounterMap(address3.address);
+        console.log(counter1);
+        expect(counter1).to.be.equal(BigNumber.from(2));
+    });
+
     it('Should test deposit until full cap', async () => {
         const [owner, address1, address2] = await ethers.getSigners();
         const mintTx2 = await exampleNFT.safeMint(address2.address);
@@ -49,14 +80,16 @@ describe('LuckyNftSwap', () => {
 
         const deposits = await luckyNftSwap.getDeposits()
         console.log(deposits)
-        expect(deposits.length).to.be.equal(2);
+        expect(deposits.length).to.be.equal(3);
         expect(deposits[0][0]).to.be.equal(exampleNftDeployed.address);
         expect(deposits[0][1]).to.be.equal(BigNumber.from(0));
-        expect(deposits[1][0]).to.be.equal(exampleNftDeployed.address);
-        expect(deposits[1][1]).to.be.equal(BigNumber.from(1));
+        expect(deposits[1][0]).to.be.equal(AnotherexampleNftDeployed.address);
+        expect(deposits[1][1]).to.be.equal(BigNumber.from(0));
+        expect(deposits[2][0]).to.be.equal(exampleNftDeployed.address);
+        expect(deposits[2][1]).to.be.equal(BigNumber.from(1));
         const counter2 = await luckyNftSwap.depositorCounterMap(address2.address);
         console.log(counter2);
-        expect(counter2).to.be.equal(BigNumber.from(2));
+        expect(counter2).to.be.equal(BigNumber.from(3));
 
     });
 
@@ -70,13 +103,16 @@ describe('LuckyNftSwap', () => {
     });
 
     it('Should test withdraw', async () => {
-        const [owner, address1, address2] = await ethers.getSigners();
+        const [owner, address1, address2, address3] = await ethers.getSigners();
         console.log(address1.address)
         console.log(address2.address)
+        console.log(address3.address)
         const withdrawTx1 = await luckyNftSwap.withdraw(address1.address);
         await withdrawTx1.wait()
         const withdrawTx2 = await luckyNftSwap.withdraw(address2.address);
         await withdrawTx2.wait()
+        // const withdrawTx3 = await luckyNftSwap.withdraw(address3.address);
+        // await withdrawTx3.wait()
 
         const owner1 = await exampleNFT.ownerOf(0)
         const owner2 = await exampleNFT.ownerOf(1)

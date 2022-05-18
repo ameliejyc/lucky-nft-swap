@@ -1,106 +1,100 @@
-// SPDX-License-Identifier: MIT
+//SPDX-License-Identifier: MIT
 pragma solidity ^0.8.4;
 
-//import "@openzeppelin/contracts@4.5.0/token/ERC721/ERC721.sol";
-import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
-//remove and
+import '@openzeppelin/contracts/token/ERC721/IERC721.sol';
 
-import "@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol";
+import '@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol';
 
-
-// abstract contract luckyNftSwap is IERC721Receiver {
 contract LuckyNftSwap is IERC721Receiver {
+  //contract LuckyNftSwap {
+  struct Deposit {
+    address nftContractAdcress;
+    uint256 tokenId; //AR:test changing size for gas optimization
+  }
 
-    struct Deposit {
-        address nftContractAdcress;
-        uint256 tokenId;
-    }
+  // mapping depositor address to deposit details
+  Deposit[] public deposits;
+  mapping(address => uint256) public depositorCounterMap; //
+  //address[] public depositorCounterMap; //to change
 
-    // mapping depositor address to deposit details
-    Deposit[] public deposits;
-    mapping(address => uint) public depositorCounterMap;
+  uint256 public counter = 1; //AR: it was working with 1 ? should be 0
+  uint256 public shiftNumber;
+  uint256 poolCap;
+  bool luckySwapEnded = false;
 
-    uint256 public counter = 1;
-    uint public shiftNumber;
-    uint poolCap;
-    bool luckySwapEnded = false;
+  //events declaration
 
-    //events declaration
+  event TokenDeposit(address, address _addColection, uint256 tokenId);
+  event Shifted(uint256 _move);
+  event TokenSend(address recipient, address _addColection, uint256 tokenId);
 
+  constructor(uint256 _poolCap) {
+    poolCap = _poolCap;
+  }
 
+  // function to deposit token
+  function deposit(address _addColection, uint256 _tokenId) public {
+    require(counter <= poolCap, 'Pool is full');
 
-    event TokenDeposit(address, address _addColection, uint256 tokenId);
-    event Shifted(uint _move);
-    event TokenSend(address recipient, address _addColection, uint256 tokenId);
+    IERC721 nft = IERC721(_addColection);
 
+    // address addColection = _addColection;
 
-    constructor(uint _poolCap)  {
-        poolCap = _poolCap;
-    }
+    deposits.push(Deposit(_addColection, _tokenId));
+    depositorCounterMap[msg.sender] = counter; //
+    //depositorCounterMap.push(msg.sendder);// to change
+    counter++;
+    nft.safeTransferFrom(msg.sender, address(this), _tokenId, '0x00');
 
-    // function to deposit token
-    function deposit(address _addColection, uint256 _tokenId) public {
-        require(counter <= poolCap, 'Pool is full');
+    emit TokenDeposit(msg.sender, _addColection, _tokenId);
+  }
 
-        IERC721 nft = IERC721(_addColection);
+  // function require to "chandle" erc721 ( checked by safeTransfer )
 
-        // address addColection = _addColection;
-
-        deposits.push(Deposit(_addColection, _tokenId));
-        depositorCounterMap[msg.sender] = counter;
-        counter++;
-        nft.safeTransferFrom(msg.sender, address(this), _tokenId, "0x00");
-
-        emit TokenDeposit(msg.sender, _addColection, _tokenId);
-    }
-
-    // function require to "chandle" erc721 ( checked by safeTransfer )
-
-    function onERC721Received(
+  function onERC721Received(
     // function onERC721Received(
-        address operator,
-        address from,
-        uint256 tokenId,
-        bytes calldata data
-    ) override external returns (bytes4){
-        return bytes4(keccak256("onERC721Received(address,address,uint256,bytes)"));
-    }
+    address operator,
+    address from,
+    uint256 tokenId,
+    bytes calldata data
+  ) external override returns (bytes4) {
+    return bytes4(keccak256('onERC721Received(address,address,uint256,bytes)'));
+  }
 
+  // withdraw function
 
-    // withdraw function
+  function withdraw(address depositor) public {
+    require(luckySwapEnded, 'Lucky swap in proogress');
+    Deposit memory depositToReceive = getDepositAfterShift(depositor);
 
+    address nftContractAdcress = depositToReceive.nftContractAdcress;
+    IERC721 nft = IERC721(nftContractAdcress);
+    uint256 tokenId = depositToReceive.tokenId;
+    // _nftAddress.safeTransferFrom(address(this), msg.sender, deposit[msg.sender].tokenId,"0x00");
+    nft.safeTransferFrom(address(this), depositor, tokenId, '0x00');
+    // delete deposits[msg.sender];
+    emit TokenSend(depositor, nftContractAdcress, tokenId);
+  }
 
+  function getDepositAfterShift(address depositor)
+    public
+    view
+    returns (Deposit memory)
+  {
+    uint256 depositedCounter = depositorCounterMap[depositor];
+    uint256 depositIndexAfterShift = (depositedCounter + shiftNumber) % poolCap;
+    return deposits[depositIndexAfterShift];
+  }
 
-    function withdraw(address depositor) public {
-        require(luckySwapEnded, 'Lucky swap in proogress');
-        Deposit memory depositToReceive = getDepositAfterShift(depositor);
+  function shift() public {
+    require(counter >= poolCap, 'Need to deposit more nfts');
+    require(!luckySwapEnded, 'Lucky swap already ended');
+    luckySwapEnded = true;
+    shiftNumber = uint256(block.number - 1);
+    emit Shifted(shiftNumber);
+  }
 
-        address nftContractAdcress = depositToReceive.nftContractAdcress;
-        IERC721 nft = IERC721(nftContractAdcress);
-        uint tokenId = depositToReceive.tokenId;
-        // _nftAddress.safeTransferFrom(address(this), msg.sender, deposit[msg.sender].tokenId,"0x00");
-        nft.safeTransferFrom(address(this), depositor, tokenId, "0x00");
-        // delete deposits[msg.sender];
-        emit TokenSend(depositor, nftContractAdcress, tokenId);
-    }
-
-    function getDepositAfterShift(address depositor) public view returns (Deposit memory)  {
-        uint depositedCounter = depositorCounterMap[depositor];
-        uint depositIndexAfterShift = (depositedCounter + shiftNumber) % poolCap;
-        return deposits[depositIndexAfterShift];
-    }
-
-
-    function shift() public {
-        require(counter >= poolCap, 'Need to deposit more nfts');
-        require(!luckySwapEnded, 'Lucky swap already ended');
-        luckySwapEnded = true;
-        shiftNumber = uint256(block.number - 1);
-        emit Shifted(shiftNumber);
-    }
-
-    function getDeposits() public view returns (Deposit[] memory) {
-        return deposits;
-    }
-
+  function getDeposits() public view returns (Deposit[] memory) {
+    return deposits;
+  }
 }
