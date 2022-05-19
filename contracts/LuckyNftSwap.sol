@@ -10,6 +10,7 @@ contract LuckyNftSwap is IERC721Receiver {
   //contract LuckyNftSwap {
   struct Deposit {
     address nftContractAdcress;
+    //TODO: try to lower 256 -> ?
     uint256 tokenId; //AR:test changing size for gas optimization
   }
 

@@ -122,4 +122,6 @@ describe('LuckyNftSwap', () => {
         expect(owner1).to.be.oneOf([address1.address, address2.address]);
         expect(owner2).to.be.oneOf([address1.address, address2.address]);
     });
+
+    //TODO: more corner case tests
 });
