@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { ethers, Signer } from 'ethers';
 import styled from 'styled-components';
 import { useWeb3React } from '@web3-react/core';
 import { Provider } from '../utils/provider';
@@ -24,13 +25,22 @@ const StyledNFTGrid = styled.section`
 
 const NftItemList = () => {
   const Web3Api = useMoralisWeb3Api();
-  const { account, chainId } = useWeb3React<Provider>();
+  const { account, chainId, library } = useWeb3React<Provider>();
   const { isInitialized } = useMoralis();
+  const [signer, setSigner] = useState<Signer>();
   const [loadingStatus, setLoadingStatus] = useState<LoadingStatus>(
     LoadingStatus.SUCCESS
   );
   const [onChainNFTs, setOnChainNFTs] = useState<any>([]);
   const { verifyMetadata } = useVerifyMetadata();
+
+  useEffect(() => {
+    if (!library) {
+      setSigner(undefined);
+      return;
+    }
+    setSigner(library.getSigner());
+  }, [library]);
 
   const getNFTs = async () => {
     if (account) {
@@ -60,7 +70,11 @@ const NftItemList = () => {
   return (
     <>
       <h2>Your NFTs</h2>
-      <p>Choose an NFT to add to the pool!</p>
+      <ol>
+        <li>Approve an NFT</li>
+        <li>Deposit it to the pool</li>
+        <li>Wait and see what NFT you get in return!</li>
+      </ol>
       {loadingStatus !== LoadingStatus.SUCCESS ? (
         <p>{loadingStatus}</p>
       ) : (
@@ -68,7 +82,14 @@ const NftItemList = () => {
           {onChainNFTs &&
             onChainNFTs.map((nft: NFT, index: number) => {
               nft = verifyMetadata(nft);
-              return <NftItem key={index} nft={nft} chainId={chainId} />;
+              return (
+                <NftItem
+                  key={index}
+                  nft={nft}
+                  chainId={chainId}
+                  signer={signer}
+                />
+              );
             })}
         </StyledNFTGrid>
       )}
