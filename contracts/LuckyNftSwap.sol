@@ -5,6 +5,7 @@ import '@openzeppelin/contracts/token/ERC721/IERC721.sol';
 
 import '@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol';
 
+//TODO: prepare deployment script
 contract LuckyNftSwap is IERC721Receiver {
   //contract LuckyNftSwap {
   struct Deposit {
@@ -28,13 +29,16 @@ contract LuckyNftSwap is IERC721Receiver {
   event Shifted(uint256 _move);
   event TokenSend(address recipient, address _addColection, uint256 tokenId);
 
+  //TODO: set poolCap by function (onlyOwner?)
   constructor(uint256 _poolCap) {
     poolCap = _poolCap;
   }
 
+  //TODO: add game id to handle multiple lotteries in the same time
   // function to deposit token
   function deposit(address _addColection, uint256 _tokenId) public {
     require(counter <= poolCap, 'Pool is full');
+//    require(depositorCounterMap[msg.sender] == 0, "Deposit from this address already made");
 
     IERC721 nft = IERC721(_addColection);
 
@@ -81,6 +85,7 @@ contract LuckyNftSwap is IERC721Receiver {
     view
     returns (Deposit memory)
   {
+    //TODO: check if is depositor
     uint256 depositedCounter = depositorCounterMap[depositor];
     uint256 depositIndexAfterShift = (depositedCounter + shiftNumber) % poolCap;
     return deposits[depositIndexAfterShift];
@@ -90,6 +95,7 @@ contract LuckyNftSwap is IERC721Receiver {
     require(counter >= poolCap, 'Need to deposit more nfts');
     require(!luckySwapEnded, 'Lucky swap already ended');
     luckySwapEnded = true;
+    //TODO: replace by chainlink
     shiftNumber = uint256(block.number - 1);
     emit Shifted(shiftNumber);
   }
@@ -97,4 +103,7 @@ contract LuckyNftSwap is IERC721Receiver {
   function getDeposits() public view returns (Deposit[] memory) {
     return deposits;
   }
+
+  //TODO: getter isGameInProgress + isUserParticipatedInGame
+  //TODO: getOriginalDeposit function for frontend
 }
