@@ -12,7 +12,7 @@ describe('LuckyNftSwap', () => {
     let AnotherexampleNftDeployed;
     let AnotherexampleNFT;
 
-    let owner, address1, address2, address3;
+    let owner, address1, address2, address3, address4;
 
     before(async () => {
         const LuckyNftSwap = await ethers.getContractFactory('LuckyNftSwap');
@@ -26,7 +26,7 @@ describe('LuckyNftSwap', () => {
         const AnotherExampleNFT = await ethers.getContractFactory('AnotherExampleNFT');
         AnotherexampleNFT = await AnotherExampleNFT.deploy();
         AnotherexampleNftDeployed = await AnotherexampleNFT.deployed();
-        [owner, address1, address2, address3] = await ethers.getSigners();
+        [owner, address1, address2, address3, address4] = await ethers.getSigners();
     })
 
     it('Should test deposit 1 nft from Example NFT collection', async () => {
@@ -118,6 +118,12 @@ describe('LuckyNftSwap', () => {
         console.log(owner2)
         expect(owner1).to.be.oneOf([address1.address, address2.address]);
         expect(owner2).to.be.oneOf([address1.address, address2.address]);
+    });
+
+    it('Should fail when trying to get depositor after shift when there is no deposit', async () => {
+        const getDepositAfterShiftPromise = luckyNftSwap.getDepositAfterShift(address4.address);
+
+        await expect(getDepositAfterShiftPromise).to.be.revertedWith("No deposit for address found")
     });
 
     //TODO: more corner case tests

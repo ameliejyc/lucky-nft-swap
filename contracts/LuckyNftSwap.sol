@@ -86,8 +86,9 @@ contract LuckyNftSwap is IERC721Receiver {
     view
     returns (Deposit memory)
   {
-    //TODO: check if is depositor
     uint256 depositedCounter = depositorCounterMap[depositor];
+    require(depositedCounter != 0, "No deposit for address found");
+
     uint256 depositIndexAfterShift = (depositedCounter + shiftNumber) % poolCap;
     return deposits[depositIndexAfterShift];
   }
