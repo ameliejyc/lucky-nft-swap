@@ -116,16 +116,16 @@ describe('LuckyNftSwap', () => {
         await withdrawTx1.wait()
         const withdrawTx2 = await luckyNftSwap.withdraw(address2.address);
         await withdrawTx2.wait()
-        // const withdrawTx3 = await luckyNftSwap.withdraw(address3.address);
-        // await withdrawTx3.wait()
+        const withdrawTx3 = await luckyNftSwap.withdraw(address3.address);
+        await withdrawTx3.wait()
 
         const owner1 = await exampleNFT.ownerOf(0)
         const owner2 = await exampleNFT.ownerOf(1)
 
         console.log(owner1)
         console.log(owner2)
-        expect(owner1).to.be.oneOf([address1.address, address2.address]);
-        expect(owner2).to.be.oneOf([address1.address, address2.address]);
+        expect(owner1).to.be.oneOf([address1.address, address2.address, address3.address]);
+        expect(owner2).to.be.oneOf([address1.address, address2.address, address3.address]);
     });
 
     it('Should fail when trying to get depositor after shift when there is no deposit', async () => {
@@ -141,6 +141,23 @@ describe('LuckyNftSwap', () => {
         const newCap = await luckyNftSwap.poolCap();
 
         expect(newCap).to.be.equal(BigNumber.from(4))
+    });
+
+    it('should test get original deposit', async () => {
+        const originalDepositAddress1 = await luckyNftSwap.getOriginalDeposit(address1.address);
+        const originalDepositAddress2 = await luckyNftSwap.getOriginalDeposit(address2.address);
+        const originalDepositAddress3 = await luckyNftSwap.getOriginalDeposit(address3.address);
+
+        console.log(originalDepositAddress1)
+
+        expect(originalDepositAddress1.nftContractAdcress).to.be.equal(exampleNftDeployed.address)
+        expect(originalDepositAddress1.tokenId).to.be.equal(BigNumber.from(0))
+
+        expect(originalDepositAddress2.nftContractAdcress).to.be.equal(exampleNftDeployed.address)
+        expect(originalDepositAddress2.tokenId).to.be.equal(BigNumber.from(1))
+
+        expect(originalDepositAddress3.nftContractAdcress).to.be.equal(AnotherexampleNftDeployed.address)
+        expect(originalDepositAddress3.tokenId).to.be.equal(BigNumber.from(0))
     });
 
     //TODO: more corner case tests

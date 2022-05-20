@@ -114,5 +114,10 @@ contract LuckyNftSwap is IERC721Receiver, Ownable {
     return (luckySwapEnded, depositorCounterMap[participant] != 0);
   }
 
-  //TODO: getOriginalDeposit function for frontend
+  function getOriginalDeposit(address depositor) public view returns (Deposit memory) {
+    uint256 depositedCounter = depositorCounterMap[depositor];
+    require(depositedCounter != 0, "No deposit for address found");
+
+    return deposits[depositedCounter - 1];
+  }
 }
