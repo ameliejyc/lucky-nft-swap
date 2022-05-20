@@ -28,9 +28,17 @@ const config: HardhatUserConfig = {
       accounts:
         process.env.TEST_ETH_ACCOUNT_PRIVATE_KEY !== undefined
           ? [process.env.TEST_ETH_ACCOUNT_PRIVATE_KEY]
-          : []
+          : [],
+      gas: 2100000,
+      gasPrice: 8000000000
+    },
+    rinkeby: {
+      url: process.env.RINKEBY_URL || '',
+      gas: 2100000,
+      gasPrice: 8000000000
     }
   },
+
   gasReporter: {
     enabled: process.env.REPORT_GAS !== undefined,
     currency: 'USD'
@@ -40,7 +48,7 @@ const config: HardhatUserConfig = {
   },
   mocha: {
     timeout: 40000
-  },
+  }
 };
 
 export default config;

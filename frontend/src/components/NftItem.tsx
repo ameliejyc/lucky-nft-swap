@@ -22,10 +22,10 @@ export interface NFT {
 enum TransferStatus {
   NOT_APPROVED = 'Approve this NFT',
   IN_PROGRESS = 'In progress...',
-  APPROVED = 'Approved! Now deposit this NFT',
+  APPROVED = 'Approved! Deposit this NFT',
   SUCCESS = 'Deposit successful!',
   UNVERIFIED_CONTRACT = "Sorry, this NFT's contract is unverified. You can only approve NFTs for transfer that have verified contracts.",
-  FAILED = 'Oops, sorry something went wrong.'
+  FAILED = 'Transaction failed.'
 }
 
 const StyledCard = styled.div`
@@ -48,6 +48,7 @@ const StyledButton = styled.button`
   margin: 0.5rem;
   border-color: black;
   background-color: white;
+  cursor: pointer;
 `;
 
 const StyledImage = styled.img`
@@ -55,10 +56,17 @@ const StyledImage = styled.img`
   margin-bottom: 0.5rem;
 `;
 
-const NftItem = ({ nft, chainId, signer }: any) => {
+const NftItem = ({
+  nft,
+  chainId,
+  signer,
+  luckyNftSwapContract,
+  refreshStatus
+}: any) => {
   const [transferStatus, setTransferStatus] = useState<TransferStatus>(
     TransferStatus.NOT_APPROVED
   );
+  const [customErrorMessage, setCustomErrorMessage] = useState<string>('');
 
   const getABI = async () => {
     try {
@@ -83,32 +91,38 @@ const NftItem = ({ nft, chainId, signer }: any) => {
         abi as ContractInterface,
         signer
       );
-      console.log({ nftContract });
-      const approvalTransaction = await nftContract.approve(
-        '', // luckyNftSwapContract
-        nft.token_id
-      );
-      await approvalTransaction.wait();
+      await nftContract.approve(luckyNftSwapContract.address, nft.token_id);
       setTransferStatus(TransferStatus.APPROVED);
     } catch (e: any) {
-      if (e.message === 'Unverified contract') {
-        setTransferStatus(TransferStatus.UNVERIFIED_CONTRACT);
-      } else {
-        setTransferStatus(TransferStatus.FAILED);
-        console.log(e.message);
+      setTransferStatus(TransferStatus.FAILED);
+      console.log(e.message);
+      switch (e.message) {
+        case 'MetaMask Tx Signature: User denied transaction signature.':
+          return setCustomErrorMessage('User denied transaction.');
+        case 'cannot estimate gas':
+          return setCustomErrorMessage('Cannot estimate gas.');
+        default:
+          return;
       }
     }
   };
 
   const deposit = async () => {
     try {
-      // const depositNftTransaction = await luckyNftSwapContract.deposit(
-      //   nft.token_address,
-      //   nft.token_id
-      // );
+      setTransferStatus(TransferStatus.IN_PROGRESS);
+      // console.log(nft);
+      // console.log(luckyNftSwapContract);
+      const depositNftTransaction = await luckyNftSwapContract.deposit(
+        nft.token_address,
+        ethers.BigNumber.from(nft.token_id).toString() // might not be necessary
+      );
+      console.log({ depositNftTransaction });
       // await depositNftTransaction.wait();
+      setTransferStatus(TransferStatus.SUCCESS);
+      await refreshStatus();
       return console.log('deposit called');
     } catch (e) {
+      setTransferStatus(TransferStatus.FAILED);
       console.log(e);
     }
   };
@@ -128,7 +142,9 @@ const NftItem = ({ nft, chainId, signer }: any) => {
       <strong>{nft.name}</strong>
       {transferStatus !== TransferStatus.NOT_APPROVED &&
       transferStatus !== TransferStatus.APPROVED ? (
-        <p>{transferStatus}</p>
+        <p>
+          {transferStatus} {customErrorMessage}
+        </p>
       ) : (
         <StyledButton onClick={getTransferAction}>
           {transferStatus}
