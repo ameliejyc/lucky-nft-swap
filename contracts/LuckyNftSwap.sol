@@ -39,7 +39,7 @@ contract LuckyNftSwap is IERC721Receiver {
   // function to deposit token
   function deposit(address _addColection, uint256 _tokenId) public {
     require(counter <= poolCap, 'Pool is full');
-//    require(depositorCounterMap[msg.sender] == 0, "Deposit from this address already made");
+    require(depositorCounterMap[msg.sender] == 0, "Deposit from this address already made");
 
     IERC721 nft = IERC721(_addColection);
 

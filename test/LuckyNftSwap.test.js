@@ -12,6 +12,7 @@ describe('LuckyNftSwap', () => {
     let AnotherexampleNftDeployed;
     let AnotherexampleNFT;
 
+    let owner, address1, address2, address3;
 
     before(async () => {
         const LuckyNftSwap = await ethers.getContractFactory('LuckyNftSwap');
@@ -25,11 +26,10 @@ describe('LuckyNftSwap', () => {
         const AnotherExampleNFT = await ethers.getContractFactory('AnotherExampleNFT');
         AnotherexampleNFT = await AnotherExampleNFT.deploy();
         AnotherexampleNftDeployed = await AnotherexampleNFT.deployed();
-
+        [owner, address1, address2, address3] = await ethers.getSigners();
     })
 
     it('Should test deposit 1 nft from Example NFT collection', async () => {
-        const [owner, address1, address2] = await ethers.getSigners();
         const mintTx = await exampleNFT.safeMint(address1.address);
         await mintTx.wait();
         const approveTx = await exampleNFT.connect(address1).approve(luckyNftSwapDeployed.address, 0);
@@ -49,7 +49,6 @@ describe('LuckyNftSwap', () => {
     });
 
     it('Should test deposit 1 nft from Another Example NFT collection', async () => {
-        const [owner, address1, address3] = await ethers.getSigners();
         const mintTx = await AnotherexampleNFT.safeMint(address3.address);
         await mintTx.wait();
         const approveTx = await AnotherexampleNFT.connect(address3).approve(luckyNftSwapDeployed.address, 0);
@@ -69,7 +68,6 @@ describe('LuckyNftSwap', () => {
     });
 
     it('Should test deposit until full cap', async () => {
-        const [owner, address1, address2] = await ethers.getSigners();
         const mintTx2 = await exampleNFT.safeMint(address2.address);
         await mintTx2.wait();
         const approveTx2 = await exampleNFT.connect(address2).approve(luckyNftSwapDeployed.address, 1);
@@ -103,7 +101,6 @@ describe('LuckyNftSwap', () => {
     });
 
     it('Should test withdraw', async () => {
-        const [owner, address1, address2, address3] = await ethers.getSigners();
         console.log(address1.address)
         console.log(address2.address)
         console.log(address3.address)
