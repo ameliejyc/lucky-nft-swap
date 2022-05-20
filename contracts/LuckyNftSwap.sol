@@ -2,11 +2,11 @@
 pragma solidity ^0.8.4;
 
 import '@openzeppelin/contracts/token/ERC721/IERC721.sol';
-
 import '@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol';
+import "@openzeppelin/contracts/access/Ownable.sol";
 
 //TODO: prepare deployment script
-contract LuckyNftSwap is IERC721Receiver {
+contract LuckyNftSwap is IERC721Receiver, Ownable {
   //contract LuckyNftSwap {
   struct Deposit {
     address nftContractAdcress;
@@ -21,7 +21,7 @@ contract LuckyNftSwap is IERC721Receiver {
 
   uint256 public counter = 1; //AR: it was working with 1 ? should be 0
   uint256 public shiftNumber;
-  uint256 poolCap;
+  uint256 public poolCap;
   bool luckySwapEnded = false;
 
   //events declaration
@@ -30,7 +30,6 @@ contract LuckyNftSwap is IERC721Receiver {
   event Shifted(uint256 _move);
   event TokenSend(address recipient, address _addColection, uint256 tokenId);
 
-  //TODO: set poolCap by function (onlyOwner?)
   constructor(uint256 _poolCap) {
     poolCap = _poolCap;
   }
@@ -104,6 +103,11 @@ contract LuckyNftSwap is IERC721Receiver {
 
   function getDeposits() public view returns (Deposit[] memory) {
     return deposits;
+  }
+
+  function setPoolCap(uint _newCap) public onlyOwner {
+    require(_newCap >= counter, "New cap must be > counter");
+    poolCap = _newCap;
   }
 
   //TODO: getter isGameInProgress + isUserParticipatedInGame

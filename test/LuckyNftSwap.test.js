@@ -126,5 +126,14 @@ describe('LuckyNftSwap', () => {
         await expect(getDepositAfterShiftPromise).to.be.revertedWith("No deposit for address found")
     });
 
+    it('should set new pool cap', async () => {
+        const setPoolCapTx = await luckyNftSwap.setPoolCap(4);
+        await setPoolCapTx.wait()
+
+        const newCap = await luckyNftSwap.poolCap();
+
+        expect(newCap).to.be.equal(BigNumber.from(4))
+    });
+
     //TODO: more corner case tests
 });
