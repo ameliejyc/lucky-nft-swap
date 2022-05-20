@@ -91,6 +91,14 @@ describe('LuckyNftSwap', () => {
 
     });
 
+    it('should test isGameEndedIsAddressDepositor', async () => {
+        const isGameEndedIsAddressDepositor = await luckyNftSwap.isGameEndedIsAddressDepositor(address1.address);
+
+        console.log(isGameEndedIsAddressDepositor)
+        expect(isGameEndedIsAddressDepositor[0]).to.be.equal(false)
+        expect(isGameEndedIsAddressDepositor[1]).to.be.equal(true)
+    });
+
     it('Should test shift', async () => {
         const shiftTx = await luckyNftSwap.shift();
         await shiftTx.wait();

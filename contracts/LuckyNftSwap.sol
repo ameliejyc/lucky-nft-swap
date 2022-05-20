@@ -110,6 +110,9 @@ contract LuckyNftSwap is IERC721Receiver, Ownable {
     poolCap = _newCap;
   }
 
-  //TODO: getter isGameInProgress + isUserParticipatedInGame
+  function isGameEndedIsAddressDepositor(address participant) public view returns(bool, bool) {
+    return (luckySwapEnded, depositorCounterMap[participant] != 0);
+  }
+
   //TODO: getOriginalDeposit function for frontend
 }
