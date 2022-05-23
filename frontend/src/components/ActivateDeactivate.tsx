@@ -46,15 +46,17 @@ const StyledActivateButton = styled.button`
   width: 150px;
   height: 2rem;
   border-radius: 1rem;
-  border-color: green;
+  border: 2px solid lightgreen;
   margin-right: 0.4rem;
+  background-color: white;
 `;
 
 const StyledDeactivateButton = styled.button`
   width: 150px;
   height: 2rem;
   border-radius: 1rem;
-  border-color: red;
+  border: 2px solid red;
+  background-color: white;
 `;
 
 function Activate(): ReactElement {
@@ -88,11 +90,11 @@ function Activate(): ReactElement {
       disabled={active}
       style={{
         cursor: active ? 'not-allowed' : 'pointer',
-        borderColor: activating ? 'orange' : active ? 'unset' : 'green'
+        borderColor: activating ? 'orange' : active ? 'unset' : 'lightgreen'
       }}
       onClick={handleActivate}
     >
-      Connect your wallet
+      Connect
     </StyledActivateButton>
   );
 }

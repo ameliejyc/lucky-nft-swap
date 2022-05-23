@@ -41,16 +41,6 @@ const StyledCard = styled.div`
   padding: 0.5rem;
 `;
 
-const StyledButton = styled.button`
-  width: auto;
-  height: 2.5rem;
-  padding: 0 1rem;
-  margin: 0.5rem;
-  border-color: black;
-  background-color: white;
-  cursor: pointer;
-`;
-
 const StyledImage = styled.img`
   height: 150px;
   margin-bottom: 0.5rem;
@@ -67,6 +57,19 @@ const NftItem = ({
     TransferStatus.NOT_APPROVED
   );
   const [customErrorMessage, setCustomErrorMessage] = useState<string>('');
+
+  const StyledButton = styled.button`
+    width: auto;
+    height: 2.5rem;
+    padding: 0 1rem;
+    margin: 0.5rem;
+    border: 2px solid black;
+    background-color: ${transferStatus === TransferStatus.NOT_APPROVED
+      ? `orange`
+      : `lightgreen`};
+    border-radius: 25px;
+    cursor: pointer;
+  `;
 
   const getABI = async () => {
     try {
