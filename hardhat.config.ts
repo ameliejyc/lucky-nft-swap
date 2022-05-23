@@ -12,7 +12,7 @@ import './tasks/deploy';
 dotenv.config();
 
 const config: HardhatUserConfig = {
-  solidity: '0.8.4',
+  solidity: '0.8.7',
   paths: {
     artifacts: './frontend/src/artifacts'
   },
@@ -33,7 +33,7 @@ const config: HardhatUserConfig = {
       gasPrice: 8000000000
     },
     rinkeby: {
-      url: process.env.RINKEBY_URL || '',
+      url: "https://rinkeby.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161",
       gas: 2100000,
       gasPrice: 8000000000
     }
