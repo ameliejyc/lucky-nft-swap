@@ -1,10 +1,28 @@
 import { useEffect, useState } from 'react';
 
-const SwapStatus = ({ isSwapInProgress, participation }: any) => {
+const SwapStatus = ({
+  isSwapInProgress,
+  participation,
+  userAddress,
+  luckyNftSwapContract
+}: any) => {
   const [participationInfo, setParticipationInfo] = useState();
+
   useEffect(() => {
-    // clean participation data and save to state
-    // setParticipationInfo
+    const getParticipationInfo = async () => {
+      if (participation) {
+        try {
+          const originalDeposit = await luckyNftSwapContract.getOriginalDeposit(
+            userAddress
+          );
+          console.log({ originalDeposit });
+          setParticipationInfo(originalDeposit);
+        } catch (error: any) {
+          console.log(error.message);
+        }
+      } else console.log('User has not participated in this swap');
+    };
+    getParticipationInfo();
   }, [participation]);
 
   return (
@@ -16,7 +34,7 @@ const SwapStatus = ({ isSwapInProgress, participation }: any) => {
       {participation && (
         <>
           <p>Here's your latest swap info</p>
-          {participationInfo}
+          {JSON.stringify(participationInfo)}
         </>
       )}
     </>

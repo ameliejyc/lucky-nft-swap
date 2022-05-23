@@ -32,15 +32,22 @@ export function App(): ReactElement {
   const { library } = useWeb3React<Provider>();
   const [contract, setContract] = useState<ethers.Contract>();
   const [signer, setSigner] = useState<Signer>();
+  const [userAddress, setUserAddress] = useState<string>('');
   const [participation, setParticipation] = useState();
-  const [isSwapInProgress, setIsSwapInProgress] = useState<boolean>(true);
+  const [isSwapInProgress, setIsSwapInProgress] = useState<boolean>();
 
   useEffect(() => {
     if (!library) {
       setSigner(undefined);
       return;
     }
-    setSigner(library.getSigner());
+    const getSignerAndAddress = async () => {
+      const signer = library.getSigner();
+      setSigner(signer);
+      const userAddress = await signer.getAddress();
+      setUserAddress(userAddress);
+    };
+    getSignerAndAddress();
   }, [library]);
 
   useEffect(() => {
@@ -61,7 +68,6 @@ export function App(): ReactElement {
   function handleDeployContract(event: any) {
     event.preventDefault();
 
-    // only deploy the Greeter contract one time, when a signer is defined
     if (contract || !signer) {
       return;
     }
@@ -93,22 +99,22 @@ export function App(): ReactElement {
     deployLuckyNftSwapContract(signer);
   }
 
-  // WIP: status method on contract is not yet implemented
   const refreshStatus = async () => {
     if (!contract) return;
     try {
-      const status = await contract.getStatus();
-      // setIsSwapInProgress(); set swap status
-      // setParticipation(); set participant data if available
+      const [isSwapEnded, hasUserParticipated] =
+        await contract.isGameEndedIsAddressDepositor(userAddress);
+      console.log({ isSwapEnded }, { hasUserParticipated });
+      setIsSwapInProgress(!isSwapEnded);
+      setParticipation(hasUserParticipated);
     } catch (e) {
       console.log(e);
     }
   };
 
-  // WIP
   useEffect(() => {
     if (!contract) return;
-    // refreshStatus();
+    refreshStatus();
   }, [contract]);
 
   return (
@@ -123,7 +129,12 @@ export function App(): ReactElement {
       {isSwapInProgress && participation ? (
         <>
           <NftPool luckyNftSwapContract={contract} />
-          <SwapStatus isSwapInProgress={true} participation={participation} />
+          <SwapStatus
+            isSwapInProgress={isSwapInProgress}
+            participation={participation}
+            userAddress={userAddress}
+            luckyNftSwapContract={contract}
+          />
         </>
       ) : isSwapInProgress ? (
         <>
@@ -135,7 +146,10 @@ export function App(): ReactElement {
           />
         </>
       ) : (
-        <SwapStatus isSwapInProgress={false} participation={participation} />
+        <SwapStatus
+          isSwapInProgress={isSwapInProgress}
+          participation={participation}
+        />
       )}
     </StyledAppDiv>
   );
