@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react';
-import styled from 'styled-components';
 
 enum LoadingStatus {
   LOADING = 'Loading NFTs.',
@@ -13,15 +12,9 @@ interface Deposit {
   tokenId: number;
 }
 
-const StyledNFTGrid = styled.section`
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-around;
-  width: 100%;
-`;
-
 const NftPool = ({ luckyNftSwapContract }: any) => {
   const [deposits, setDeposits] = useState<Deposit[]>([]);
+  const [poolCap, setPoolCap] = useState<number>(0);
   const [loadingStatus, setLoadingStatus] = useState<LoadingStatus>(
     LoadingStatus.LOADING
   );
@@ -33,17 +26,27 @@ const NftPool = ({ luckyNftSwapContract }: any) => {
         setLoadingStatus(LoadingStatus.LOADING);
         const deposits = await luckyNftSwapContract.getDeposits();
         if (deposits && deposits.length > 0) {
-          setDeposits(deposits.result);
+          setDeposits(deposits);
           setLoadingStatus(LoadingStatus.SUCCESS);
         } else setLoadingStatus(LoadingStatus.NO_RESULTS);
-        console.log('getDeposits call returned', deposits);
         return;
       } catch (e) {
         console.log(e);
         setLoadingStatus(LoadingStatus.FAILED);
       }
     };
+    const getPoolCap = async () => {
+      try {
+        setLoadingStatus(LoadingStatus.LOADING);
+        const poolCap = await luckyNftSwapContract.poolCap();
+        setPoolCap(Number(poolCap));
+      } catch (e) {
+        console.log(e);
+        setLoadingStatus(LoadingStatus.FAILED);
+      }
+    };
     getDeposits();
+    getPoolCap();
   }, [luckyNftSwapContract]);
 
   return (
@@ -52,11 +55,10 @@ const NftPool = ({ luckyNftSwapContract }: any) => {
       {loadingStatus !== LoadingStatus.SUCCESS ? (
         <p>{loadingStatus}</p>
       ) : (
-        <StyledNFTGrid>
-          {deposits.map((deposit, index) => (
-            <p key={index}>{deposit.nftContractAdcress}</p>
-          ))}
-        </StyledNFTGrid>
+        <p>
+          There are currently {deposits.length} NFTs in the swap out of{' '}
+          {poolCap}
+        </p>
       )}
     </>
   );

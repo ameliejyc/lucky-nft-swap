@@ -54,7 +54,7 @@ export function App(): ReactElement {
     if (!signer) return;
     const getContract = async () => {
       const luckyNftSwapContract = new ethers.Contract(
-        '0x8464135c8F25Da09e49BC8782676a84730C318bC', // TODO pass env variable in for deployment address
+        '0xA3e2205C9C8db3b6b43Acd760092dbcB7b0b344d',
         LuckyNftSwapArtifact.abi,
         signer
       );
@@ -64,47 +64,11 @@ export function App(): ReactElement {
     getContract();
   }, [signer]);
 
-  // Only using this during development to deploy contract locally
-  function handleDeployContract(event: any) {
-    event.preventDefault();
-
-    if (contract || !signer) {
-      return;
-    }
-
-    async function deployLuckyNftSwapContract(signer: Signer): Promise<void> {
-      const LuckyNftSwap = new ethers.ContractFactory(
-        LuckyNftSwapArtifact.abi,
-        LuckyNftSwapArtifact.bytecode,
-        signer
-      );
-
-      try {
-        const luckyNftSwapContract = await LuckyNftSwap.deploy(4);
-        await luckyNftSwapContract.deployed();
-        const deposits = await luckyNftSwapContract.getDeposits();
-        console.log({ deposits });
-        setContract(luckyNftSwapContract);
-
-        window.alert(
-          `LuckyNftSwap deployed to: ${luckyNftSwapContract.address}`
-        );
-      } catch (error: any) {
-        window.alert(
-          'Error!' + (error && error.message ? `\n\n${error.message}` : '')
-        );
-      }
-    }
-
-    deployLuckyNftSwapContract(signer);
-  }
-
   const refreshStatus = async () => {
     if (!contract) return;
     try {
       const [isSwapEnded, hasUserParticipated] =
         await contract.isGameEndedIsAddressDepositor(userAddress);
-      console.log({ isSwapEnded }, { hasUserParticipated });
       setIsSwapInProgress(!isSwapEnded);
       setParticipation(hasUserParticipated);
     } catch (e) {
@@ -120,7 +84,6 @@ export function App(): ReactElement {
   return (
     <StyledAppDiv>
       <ActivateDeactivate />
-      <button onClick={handleDeployContract}>test deploy</button>
       <StyledAppHeader>Lucky NFT Swap</StyledAppHeader>
       <StyledAppSubHeader>
         Want to shake up your NFT collection? Deposit an NFT into the lucky

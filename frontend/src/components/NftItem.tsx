@@ -113,14 +113,15 @@ const NftItem = ({
   const deposit = async () => {
     try {
       setTransferStatus(TransferStatus.IN_PROGRESS);
-      // console.log(nft);
-      // console.log(luckyNftSwapContract);
       const depositNftTransaction = await luckyNftSwapContract.deposit(
         nft.token_address,
-        ethers.BigNumber.from(nft.token_id).toString() // might not be necessary
+        ethers.BigNumber.from(nft.token_id).toString(), // might not be necessary
+        {
+          gasLimit: 10000000,
+          nonce: undefined
+        }
       );
-      console.log({ depositNftTransaction });
-      // await depositNftTransaction.wait();
+
       setTransferStatus(TransferStatus.SUCCESS);
       await refreshStatus();
       return console.log('deposit called');
