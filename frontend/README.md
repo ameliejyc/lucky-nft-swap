@@ -17,3 +17,4 @@ To start the frontend:
 
 - Metamask has a [bug](https://github.com/MetaMask/metamask-extension/issues/14187) preventing me from approving a token transfer (the extension hangs and shows the error shown on the thread when you open dev tools). I got around it by downgrading Metamask extension to 10.10.2.
 - Deploying a test contract on a local Hardhat node on localhost:8545 can take a reeeeeally long time. Importing a different Hardhat address in Metamask and using that sped things up.
+- Hardhat fork block number issue when trying to deploy new contract: `Received invalid block tag XXXX. Latest block number is XXXX`. Fixed by clearing Metamask network cache like demonstrated [here](https://ethereum.stackexchange.com/questions/109625/received-invalid-block-tag-87-latest-block-number-is-0).
