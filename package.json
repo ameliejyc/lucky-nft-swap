@@ -4,7 +4,6 @@
   "license": "MIT",
   "description": "Lucky NFT Swap using hardhat, ethers, typescript and react",
   "engines": {
-    "node": "16.13.1",
     "npm": "8.1.2"
   },
   "devDependencies": {
