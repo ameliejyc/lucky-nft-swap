@@ -3,7 +3,7 @@ import { ethers, Signer } from 'ethers';
 import styled from 'styled-components';
 import { useWeb3React } from '@web3-react/core';
 import { Provider } from './utils/provider';
-import LuckyNftSwapArtifact from './artifacts/contracts/LuckyNftSwap.sol/LuckyNftSwap.json';
+import LuckyNftSwapArtifact from './LuckyNftSwap.json';
 import { ActivateDeactivate } from './components/ActivateDeactivate';
 import NftPool from './components/NftPool';
 import NftItemList from './components/NftItemList';
