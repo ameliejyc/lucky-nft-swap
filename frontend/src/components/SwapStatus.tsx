@@ -11,27 +11,25 @@ const SwapStatus = ({
 
   useEffect(() => {
     const getParticipationInfo = async () => {
-      if (participation) {
+      if (participation && luckyNftSwapContract) {
         try {
           const [address, tokenId] =
             await luckyNftSwapContract.getOriginalDeposit(userAddress);
-          console.log(address, tokenId);
           setParticipationInfo(address);
         } catch (error: any) {
           console.log(error.message);
         }
-      } else console.log('User has not participated in this swap');
+      }
     };
     getParticipationInfo();
-  }, [participation]);
+  }, [participation, luckyNftSwapContract]);
 
   useEffect(() => {
     const getFinalSwapInfo = async () => {
-      if (!isSwapInProgress) {
+      if (!isSwapInProgress && luckyNftSwapContract) {
         try {
           const [address, tokenId] =
             await luckyNftSwapContract.getDepositAfterShift(userAddress);
-          console.log(address, tokenId);
           setFinalSwapInfo(address);
         } catch (error: any) {
           console.log(error.message);
@@ -39,24 +37,24 @@ const SwapStatus = ({
       }
     };
     getFinalSwapInfo();
-  }, [isSwapInProgress]);
+  }, [isSwapInProgress, luckyNftSwapContract]);
 
   return (
     <>
-      <h2>Swaps status</h2>
+      <h2>Your swaps</h2>
       {!isSwapInProgress && (
-        <p>There's currently no swap in progress! Come back soon :)</p>
+        <p>There are currently no swaps in progress! Come back soon :)</p>
       )}
       {participation && (
         <>
           <p>Here's the latest NFT you added to the pool:</p>
-          {participationInfo}
+          <strong>{participationInfo}</strong>
         </>
       )}
       {participation && finalSwapInfo && (
         <>
           <p>And here's your latest lucky swap!</p>
-          {finalSwapInfo}
+          <strong>{finalSwapInfo}</strong>
         </>
       )}
     </>

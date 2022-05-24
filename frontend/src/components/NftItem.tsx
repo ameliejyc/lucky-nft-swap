@@ -113,7 +113,7 @@ const NftItem = ({
   const deposit = async () => {
     try {
       setTransferStatus(TransferStatus.IN_PROGRESS);
-      const depositNftTransaction = await luckyNftSwapContract.deposit(
+      await luckyNftSwapContract.deposit(
         nft.token_address,
         ethers.BigNumber.from(nft.token_id).toString(), // might not be necessary
         {
@@ -122,9 +122,8 @@ const NftItem = ({
         }
       );
 
-      setTransferStatus(TransferStatus.SUCCESS);
       await refreshStatus();
-      return console.log('deposit called');
+      setTransferStatus(TransferStatus.SUCCESS);
     } catch (e) {
       setTransferStatus(TransferStatus.FAILED);
       console.log(e);

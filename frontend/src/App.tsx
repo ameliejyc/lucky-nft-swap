@@ -29,7 +29,7 @@ const StyledAppSubHeader = styled.p`
 `;
 
 export function App(): ReactElement {
-  const { library } = useWeb3React<Provider>();
+  const { library } = useWeb3React<Provider>(undefined);
   const [contract, setContract] = useState<ethers.Contract>();
   const [signer, setSigner] = useState<Signer>();
   const [userAddress, setUserAddress] = useState<string>('');
@@ -37,10 +37,7 @@ export function App(): ReactElement {
   const [isSwapInProgress, setIsSwapInProgress] = useState<boolean>();
 
   useEffect(() => {
-    if (!library) {
-      setSigner(undefined);
-      return;
-    }
+    if (!library) return;
     const getSignerAndAddress = async () => {
       const signer = library.getSigner();
       setSigner(signer);
@@ -79,7 +76,7 @@ export function App(): ReactElement {
   useEffect(() => {
     if (!contract) return;
     refreshStatus();
-  }, [contract]);
+  }, [contract, userAddress]);
 
   return (
     <StyledAppDiv>
