@@ -3,7 +3,7 @@ pragma solidity ^0.8.4;
 
 import '@openzeppelin/contracts/token/ERC721/IERC721.sol';
 import '@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol';
-import "@openzeppelin/contracts/access/Ownable.sol";
+import '@openzeppelin/contracts/access/Ownable.sol';
 
 //TODO: prepare deployment script
 contract LuckyNftSwap is IERC721Receiver, Ownable {
@@ -17,7 +17,7 @@ contract LuckyNftSwap is IERC721Receiver, Ownable {
   // mapping depositor address to deposit details
   Deposit[] public deposits;
   mapping(address => uint256) public depositorCounterMap; //
-  //address[] public depositorCounterMap; //to change
+  address[] public depositorArr; //to change
 
   uint256 public counter = 1; //AR: it was working with 1 ? should be 0
   uint256 public shiftNumber;
@@ -38,19 +38,24 @@ contract LuckyNftSwap is IERC721Receiver, Ownable {
   // function to deposit token
   function deposit(address _addColection, uint256 _tokenId) public {
     require(counter <= poolCap, 'Pool is full');
-    require(depositorCounterMap[msg.sender] == 0, "Deposit from this address already made");
+    require(
+      depositorCounterMap[msg.sender] == 0,
+      'Deposit from this address already made'
+    );
 
     IERC721 nft = IERC721(_addColection);
 
-    // address addColection = _addColection;
-
     deposits.push(Deposit(_addColection, _tokenId));
     depositorCounterMap[msg.sender] = counter; //
-    //depositorCounterMap.push(msg.sendder);// to change
+    depositorArr.push(msg.sender); // to change
     counter++;
     nft.safeTransferFrom(msg.sender, address(this), _tokenId, '0x00');
 
     emit TokenDeposit(msg.sender, _addColection, _tokenId);
+    if (counter > poolCap) {
+      shift();
+      //withdrawAll();
+    }
   }
 
   // function require to "chandle" erc721 ( checked by safeTransfer )
@@ -80,13 +85,28 @@ contract LuckyNftSwap is IERC721Receiver, Ownable {
     emit TokenSend(depositor, nftContractAdcress, tokenId);
   }
 
+  function withdrawAll() public {
+    //AR: addd only owner mofifier
+    require(luckySwapEnded, 'Lucky swap in proogress');
+
+    //uint256 arrSize = depositorCounterMap.length;
+    for (uint256 i = 0; i < poolCap; ++i) {
+      address depositorAddress = depositorArr[i];
+      Deposit memory depositToReceive = deposits[(i + shiftNumber) % poolCap];
+      IERC721 nft = IERC721(depositToReceive.nftContractAdcress);
+      uint256 tokenId = depositToReceive.tokenId;
+      nft.safeTransferFrom(address(this), depositorAddress, tokenId, '0x00');
+      emit TokenSend(depositorAddress, depositorAddress, tokenId);
+    }
+  }
+
   function getDepositAfterShift(address depositor)
     public
     view
     returns (Deposit memory)
   {
     uint256 depositedCounter = depositorCounterMap[depositor];
-    require(depositedCounter != 0, "No deposit for address found");
+    require(depositedCounter != 0, 'No deposit for address found');
 
     uint256 depositIndexAfterShift = (depositedCounter + shiftNumber) % poolCap;
     return deposits[depositIndexAfterShift];
@@ -98,6 +118,7 @@ contract LuckyNftSwap is IERC721Receiver, Ownable {
     luckySwapEnded = true;
     //TODO: replace by chainlink
     shiftNumber = uint256(block.number - 1);
+    withdrawAll();
     emit Shifted(shiftNumber);
   }
 
@@ -105,18 +126,26 @@ contract LuckyNftSwap is IERC721Receiver, Ownable {
     return deposits;
   }
 
-  function setPoolCap(uint _newCap) public onlyOwner {
-    require(_newCap >= counter, "New cap must be > counter");
+  function setPoolCap(uint256 _newCap) public onlyOwner {
+    require(_newCap >= counter, 'New cap must be > counter');
     poolCap = _newCap;
   }
 
-  function isGameEndedIsAddressDepositor(address participant) public view returns(bool, bool) {
+  function isGameEndedIsAddressDepositor(address participant)
+    public
+    view
+    returns (bool, bool)
+  {
     return (luckySwapEnded, depositorCounterMap[participant] != 0);
   }
 
-  function getOriginalDeposit(address depositor) public view returns (Deposit memory) {
+  function getOriginalDeposit(address depositor)
+    public
+    view
+    returns (Deposit memory)
+  {
     uint256 depositedCounter = depositorCounterMap[depositor];
-    require(depositedCounter != 0, "No deposit for address found");
+    require(depositedCounter != 0, 'No deposit for address found');
 
     return deposits[depositedCounter - 1];
   }
