@@ -51,7 +51,7 @@ export function App(): ReactElement {
     if (!signer) return;
     const getContract = async () => {
       const luckyNftSwapContract = new ethers.Contract(
-        '0xA3e2205C9C8db3b6b43Acd760092dbcB7b0b344d',
+        '0x53AdEf53eC756e120A55d54eB581cc20CFc2ABB2',
         LuckyNftSwapArtifact.abi,
         signer
       );
